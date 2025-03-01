@@ -1,5 +1,6 @@
 import java.io.*;
 import java.nio.file.Files;
+import java.util.zip.InflaterInputStream;
 
 public class Main {
   public static void main(String[] args) throws IOException {
@@ -31,7 +32,7 @@ public class Main {
          String fileHash = hash.substring(2);
          File blobFile = new File(".git/objects/"+dirHash+"/"+fileHash);
 
-         BufferedReader reader = new BufferedReader(new FileReader(blobFile));
+         BufferedReader reader = new BufferedReader(new InputStreamReader(new InflaterInputStream(new FileInputStream(blobFile))));
 //         System.out.println("printed: "+reader.read());
          StringBuilder content = new StringBuilder();
          String line;
@@ -41,7 +42,7 @@ public class Main {
            content.append(System.lineSeparator());
          }
 
-         System.out.println(content.toString());
+         System.out.println(content);
 
 
        }
