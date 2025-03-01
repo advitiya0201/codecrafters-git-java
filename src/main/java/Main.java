@@ -35,8 +35,8 @@ public class Main {
          BufferedReader reader = new BufferedReader(new InputStreamReader(new InflaterInputStream(new FileInputStream(blobFile))));
 //         System.out.println("printed: "+reader.read());
          String blob = reader.readLine();
-         String content = blob.substring(blob.indexOf('0'));
-         System.out.print(content);
+//         String content = blob.substring(blob.indexOf('0'));
+         System.out.print(blob);
 //         StringBuilder content = new StringBuilder();
 //         String line;
 //
