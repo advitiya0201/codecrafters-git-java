@@ -82,7 +82,7 @@ public class Main {
          String hex = bytesToHex(hash);
          System.out.println(hex);
 
-         File file = new File("./git/objects/" + hex.substring(0,2) + "/" + hex.substring(2));
+         File file = new File(".git/objects/" + hex.substring(0,2) + "/" + hex.substring(2));
          BufferedWriter writer = new BufferedWriter(new FileWriter(file));
          writer.write(fileBlob);
        }
