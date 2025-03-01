@@ -1,15 +1,18 @@
 import java.io.*;
 import java.nio.Buffer;
 import java.nio.file.Files;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.zip.InflaterInputStream;
 
 public class Main {
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     System.err.println("Logs from your program will appear here!");
-    for(String it: args) {
-      System.out.println("args is: "+it);
-    }
+//    for(String it: args) {
+//      System.out.println("args is: "+it);
+//    }
      final String command = args[0];
 
      switch (command) {
@@ -57,6 +60,12 @@ public class Main {
            content.append(System.lineSeparator());
          }
          System.out.println("file content is: "+content);
+         String fileBlob = "blob "
+                 +content.length()
+                 +"\0"
+                 +content;
+         MessageDigest md = MessageDigest.getInstance("SHA-1");
+         System.out.println(Arrays.toString(md.digest(fileBlob.getBytes())));
        }
        default -> System.out.println("Unknown command: " + command);
      }
