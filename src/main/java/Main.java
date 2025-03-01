@@ -32,7 +32,17 @@ public class Main {
          File blobFile = new File(".git/objects/"+dirHash+"/"+fileHash);
 
          BufferedReader reader = new BufferedReader(new FileReader(blobFile));
-         System.out.println("printed: "+reader.read());
+//         System.out.println("printed: "+reader.read());
+         StringBuilder content = new StringBuilder();
+         String line;
+
+         while ((line = reader.readLine()) != null) {
+           content.append(line);
+           content.append(System.lineSeparator());
+         }
+
+         System.out.println(content.toString());
+
 
        }
        default -> System.out.println("Unknown command: " + command);
