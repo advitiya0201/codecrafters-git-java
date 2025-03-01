@@ -7,8 +7,21 @@ import java.util.Arrays;
 import java.util.zip.InflaterInputStream;
 
 public class Main {
+
+  public static String bytesToHex(byte[] hash) {
+    StringBuilder hex = new StringBuilder(hash.length*2);
+    for(int i = 0; i<hash.length; i++) {
+      String temp = Integer.toHexString(0xff & hash[i]);
+      if(temp.length() == 1) {
+        hex.append('0');
+      }
+      hex.append(temp);
+    }
+    return hex.toString();
+  }
+
   public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-    // You can use print statements as follows for debugging, they'll be visible when running tests.
+
     System.err.println("Logs from your program will appear here!");
 //    for(String it: args) {
 //      System.out.println("args is: "+it);
@@ -59,13 +72,15 @@ public class Main {
            content.append(line);
            content.append(System.lineSeparator());
          }
-         System.out.println("file content is: "+content);
+//         System.out.println("file content is: "+content);
          String fileBlob = "blob "
                  +content.length()
                  +"\0"
                  +content;
-         MessageDigest md = MessageDigest.getInstance("SHA-1");
-         System.out.println(Arrays.toString(md.digest(fileBlob.getBytes())));
+         MessageDigest md = MessageDigest.getInstance("SHA-1"); //need to convert this to HEX
+         byte[] hash = md.digest(fileBlob.getBytes());
+         String hex = bytesToHex(hash);
+         System.out.println(hex);
        }
        default -> System.out.println("Unknown command: " + command);
      }
