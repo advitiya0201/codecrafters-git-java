@@ -34,15 +34,17 @@ public class Main {
 
          BufferedReader reader = new BufferedReader(new InputStreamReader(new InflaterInputStream(new FileInputStream(blobFile))));
 //         System.out.println("printed: "+reader.read());
-         StringBuilder content = new StringBuilder();
-         String line;
-
-         while ((line = reader.readLine()) != null) {
-           content.append(line);
-           content.append(System.lineSeparator());
-         }
-
-         System.out.println(content);
+         String temp = reader.readLine();
+         System.out.println(temp);
+//         StringBuilder content = new StringBuilder();
+//         String line;
+//
+//         while ((line = reader.readLine()) != null) {
+//           content.append(line);
+//           content.append(System.lineSeparator());
+//         }
+//
+//         System.out.println(content);
 
 
        }
