@@ -7,8 +7,6 @@ public class Main {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     System.err.println("Logs from your program will appear here!");
 
-    // Uncomment this block to pass the first stage
-
      final String command = args[0];
 
      switch (command) {
@@ -19,6 +17,7 @@ public class Main {
          final File head = new File(root, "HEAD");
 
          try {
+
            head.createNewFile();
            Files.write(head.toPath(), "ref: refs/heads/main\n".getBytes());
            System.out.println("Initialized git directory");
