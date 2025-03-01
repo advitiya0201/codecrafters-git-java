@@ -1,13 +1,12 @@
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 
 public class Main {
-  public static void main(String[] args){
+  public static void main(String[] args) throws IOException {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     System.err.println("Logs from your program will appear here!");
     for(String it: args) {
-      System.out.println("args is"+it);
+      System.out.println("args is: "+it);
     }
      final String command = args[0];
 
@@ -26,6 +25,15 @@ public class Main {
          } catch (IOException e) {
            throw new RuntimeException(e);
          }
+       } case "cat-file" -> {
+         String hash = args[2];
+         String dirHash = hash.substring(0,2);
+         String fileHash = hash.substring(2);
+         File blobFile = new File(".git/objects/"+dirHash+"/"+fileHash);
+
+         BufferedReader reader = new BufferedReader(new FileReader(blobFile));
+         System.out.println(reader.read());
+
        }
        default -> System.out.println("Unknown command: " + command);
      }
