@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.Buffer;
 import java.nio.file.Files;
 import java.util.zip.InflaterInputStream;
 
@@ -46,6 +47,16 @@ public class Main {
 //         }
 //
 //         System.out.println(content);
+       } case "hash-object" -> {
+         String fileName = args[2];
+         BufferedReader reader = new BufferedReader(new FileReader(fileName));
+         StringBuilder content = new StringBuilder();
+         String line;
+         while((line = reader.readLine()) !=null) {
+           content.append(line);
+           content.append(System.lineSeparator());
+         }
+         System.out.println("file content is: "+content);
        }
        default -> System.out.println("Unknown command: " + command);
      }
