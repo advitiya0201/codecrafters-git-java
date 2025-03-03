@@ -98,7 +98,6 @@ public class Main {
          String line;
          StringBuilder treeObjectContent = new StringBuilder();
          while((line = reader.readLine()) != null) {
-//           System.out.println("temp is: "+temp);
            treeObjectContent.append(line);
          }
          String temp = new String(treeObjectContent);
