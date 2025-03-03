@@ -85,6 +85,7 @@ public class Main {
          File file = new File(".git/objects/" + hex.substring(0,2) + "/" + hex.substring(2));
          BufferedWriter writer = new BufferedWriter(new FileWriter(file));
          writer.write(fileBlob);
+         writer.close();
        }
        default -> System.out.println("Unknown command: " + command);
      }
