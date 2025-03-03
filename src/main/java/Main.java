@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
 public class Main {
@@ -88,7 +89,7 @@ public class Main {
          }
 
          File file = new File(parentDir + "/"+ hex.substring(2));
-         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new DeflaterOutputStream(new FileOutputStream(file))));
          writer.write(fileBlob);
          writer.close();
        }
