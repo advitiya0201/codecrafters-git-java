@@ -103,7 +103,9 @@ public class Main {
          }
          String temp = new String(treeObjectContent);
          String[] array = temp.split("\0");
-         System.out.println("my array is: "+Arrays.toString(array));
+
+//         System.out.println("my array is: "+Arrays.toString(array));
+
          ArrayList<String> dirStructure = new ArrayList<>();
          for(int i = 1; i<array.length; i++) {
            String[] tempArray = array[i].split(" ",2);
@@ -113,10 +115,10 @@ public class Main {
            }
          }
          dirStructure.sort(null);
-         System.out.println("------dirStructure: "+ dirStructure);
-//         for(String s : dirStructure) {
-//           System.out.println(s);
-//         }
+//         System.out.println("------dirStructure: "+ dirStructure);
+         for(String s : dirStructure) {
+           System.out.println(s);
+         }
 
        }
        default -> System.out.println("Unknown command: " + command);
