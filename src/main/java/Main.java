@@ -87,7 +87,7 @@ public class Main {
            parentDir.mkdirs();
          }
 
-         File file = new File(parentDir + hex.substring(2));
+         File file = new File(parentDir + "/"+ hex.substring(2));
          BufferedWriter writer = new BufferedWriter(new FileWriter(file));
          writer.write(fileBlob);
          writer.close();
