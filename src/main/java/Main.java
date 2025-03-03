@@ -71,9 +71,7 @@ public class Main {
          String line;
          while((line = reader.readLine()) !=null) {
            content.append(line);
-//           content.append(System.lineSeparator());
          }
-//         System.out.println("file content is: "+content);
          String fileBlob = "blob "
                  +content.length()
                  +"\0"
