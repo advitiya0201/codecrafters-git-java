@@ -108,8 +108,9 @@ public class Main {
 //         String[] dirStructure = new String[array.length-2];
          ArrayList<String> dirStructure = new ArrayList<>();
          for(int i = 1; i<array.length; i++) {
-           if(array[i].length() == 2) {
-             String name = array[i].split(" ",2)[1];
+           String[] tempArray = array[i].split(" ",2);
+           if(tempArray.length == 2) {
+             String name = tempArray[1];
              dirStructure.add(name);
            }
          }
