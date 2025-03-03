@@ -3,6 +3,7 @@ import java.nio.Buffer;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
@@ -103,6 +104,17 @@ public class Main {
          String temp = new String(treeObjectContent);
          String[] array = temp.split("\0");
          System.out.println("my array is: "+Arrays.toString(array));
+//         StringBuilder sb = new StringBuilder();
+//         String[] dirStructure = new String[array.length-2];
+         ArrayList<String> dirStructure = new ArrayList<>();
+         for(int i = 1; i<array.length; i++) {
+           if(array[i].length() > 1) {
+             String name = array[i].split(" ",2)[1];
+             dirStructure.add(name);
+           }
+         }
+         dirStructure.sort(null);
+         System.out.println("dirStructure: "+ dirStructure);
 
        }
        default -> System.out.println("Unknown command: " + command);
