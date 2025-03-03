@@ -24,9 +24,9 @@ public class Main {
   public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
 
     System.err.println("Logs from your program will appear here!");
-//    for(String it: args) {
-//      System.out.println("args is: "+it);
-//    }
+    for(String it: args) {
+      System.out.println("args is: "+it);
+    }
      final String command = args[0];
 
      switch (command) {
@@ -89,6 +89,7 @@ public class Main {
          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new DeflaterOutputStream(new FileOutputStream(file))));
          writer.write(fileBlob);
          writer.close();
+         //use hash from args to open the tree object, and extract directory names from it
        }
        default -> System.out.println("Unknown command: " + command);
      }
