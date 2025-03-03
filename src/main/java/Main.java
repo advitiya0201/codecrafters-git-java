@@ -96,7 +96,7 @@ public class Main {
          BufferedReader reader = new BufferedReader(new InputStreamReader(new InflaterInputStream(new FileInputStream(file))));
          String temp;
          while((temp=reader.readLine())!= null) {
-           System.out.println(temp);
+           System.out.println("temp is: "+temp);
          }
        }
        default -> System.out.println("Unknown command: " + command);
