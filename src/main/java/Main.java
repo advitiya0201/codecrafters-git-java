@@ -62,7 +62,6 @@ public class Main {
 //           content.append(line);
 //           content.append(System.lineSeparator());
 //         }
-//
 //         System.out.println(content);
        } case "hash-object" -> {
          String fileName = args[2];
