@@ -103,7 +103,7 @@ public class Main {
          }
          String temp = new String(treeObjectContent);
          String[] array = temp.split("\0");
-         System.out.println("my array is: "+Arrays.toString(array));
+//         System.out.println("my array is: "+Arrays.toString(array));
 //         StringBuilder sb = new StringBuilder();
 //         String[] dirStructure = new String[array.length-2];
          ArrayList<String> dirStructure = new ArrayList<>();
