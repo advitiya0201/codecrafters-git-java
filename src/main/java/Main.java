@@ -94,10 +94,16 @@ public class Main {
          String treeHash = args[2];
          File file = new File(".git/objects/" + treeHash.substring(0,2) + "/" + treeHash.substring(2));
          BufferedReader reader = new BufferedReader(new InputStreamReader(new InflaterInputStream(new FileInputStream(file))));
-         String temp;
-         while((temp=reader.readLine())!= null) {
-           System.out.println("temp is: "+temp);
+         String line;
+         StringBuilder treeObjectContent = new StringBuilder();
+         while((line = reader.readLine()) != null) {
+//           System.out.println("temp is: "+temp);
+           treeObjectContent.append(line);
          }
+         String temp = new String(treeObjectContent);
+         String[] array = temp.split("\0");
+         System.out.println("my array is: "+Arrays.toString(array));
+
        }
        default -> System.out.println("Unknown command: " + command);
      }
