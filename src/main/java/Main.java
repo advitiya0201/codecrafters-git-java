@@ -104,9 +104,9 @@ public class Main {
   public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
 
     System.err.println("Logs from your program will appear here!");
-    for(String it: args) {
-      System.out.println("args is: "+it);
-    }
+//    for(String it: args) {
+//      System.out.println("args is: "+it);
+//    }
      final String command = args[0];
 
      switch (command) {
