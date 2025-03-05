@@ -22,8 +22,8 @@ public class Main {
     return hex.toString();
   }
 
-  public static String[] getShaAndFileblob(String fileName) throws IOException, NoSuchAlgorithmException {
-    BufferedReader reader = new BufferedReader(new FileReader(fileName));
+  public static String[] getShaAndFileblob(File file) throws IOException, NoSuchAlgorithmException {
+    BufferedReader reader = new BufferedReader(new FileReader(file));
     StringBuilder content = new StringBuilder();
     String line;
     while((line = reader.readLine()) !=null) {
@@ -55,7 +55,7 @@ public class Main {
       if (file.getName().equals(".git")) continue;  // Ignore .git directory
 
       if (file.isFile()) {
-        String hash = getShaAndFileblob(file.getName())[0];
+        String hash = getShaAndFileblob(file)[0];
         entries.add("100644 " + file.getName() + "\0" + hexToBinary(hash));
       } else if (file.isDirectory()) {
         String treeHash = writeTree(file);
