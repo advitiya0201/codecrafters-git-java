@@ -1,10 +1,10 @@
 import java.io.*;
-import java.nio.Buffer;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -22,6 +22,62 @@ public class Main {
     return hex.toString();
   }
 
+  public static String[] getShaAndFileblob(String fileName) throws IOException, NoSuchAlgorithmException {
+    BufferedReader reader = new BufferedReader(new FileReader(fileName));
+    StringBuilder content = new StringBuilder();
+    String line;
+    while((line = reader.readLine()) !=null) {
+      content.append(line);
+    }
+    String fileBlob = "blob "
+            +content.length()
+            +"\0"
+            +content;
+    MessageDigest md = MessageDigest.getInstance("SHA-1"); //need to convert this to HEX
+    byte[] hash = md.digest(fileBlob.getBytes());
+    String hex = bytesToHex(hash);
+    System.out.println(hex);
+    return new String[]{hex, fileBlob};
+  }
+
+  public static byte[] hexToBinary(String hex) {
+    byte[] binary = new byte[20];
+    for (int i = 0; i < 20; i++) {
+      binary[i] = (byte) Integer.parseInt(hex.substring(i * 2, i * 2 + 2), 16);
+    }
+    return binary;
+  }
+
+  public static String writeTree(File directory) throws IOException, NoSuchAlgorithmException {
+    if (!directory.isDirectory()) return null;
+    List<String> entries = new ArrayList<>();
+    for (File file : Objects.requireNonNull(directory.listFiles())) {
+      if (file.getName().equals(".git")) continue;  // Ignore .git directory
+
+      if (file.isFile()) {
+        String hash = getShaAndFileblob(file.getName())[0];
+        entries.add("100644 " + file.getName() + "\0" + hexToBinary(hash));
+      } else if (file.isDirectory()) {
+        String treeHash = writeTree(file);
+        entries.add("40000 " + file.getName() + "\0" + hexToBinary(treeHash));
+      }
+    }
+      String treeBlob = "tree " + entries.size() + "\0" + String.join("", entries);
+      MessageDigest md = MessageDigest.getInstance("SHA-1");
+      byte[] hash = md.digest(treeBlob.getBytes());
+      String hex = bytesToHex(hash);
+
+      File parentDir = new File(".git/objects/" + hex.substring(0, 2));
+      if (!parentDir.exists()) parentDir.mkdirs();
+
+      File treeFile = new File(parentDir, hex.substring(2));
+      if (!treeFile.exists()) {
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new DeflaterOutputStream(new FileOutputStream(treeFile))))) {
+          writer.write(treeBlob);
+        }
+      }
+      return hex;
+  }
   public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
 
     System.err.println("Logs from your program will appear here!");
@@ -66,21 +122,9 @@ public class Main {
 //         System.out.println(content);
        } case "hash-object" -> {
          String fileName = args[2];
-         BufferedReader reader = new BufferedReader(new FileReader(fileName));
-         StringBuilder content = new StringBuilder();
-         String line;
-         while((line = reader.readLine()) !=null) {
-           content.append(line);
-         }
-         String fileBlob = "blob "
-                 +content.length()
-                 +"\0"
-                 +content;
-         MessageDigest md = MessageDigest.getInstance("SHA-1"); //need to convert this to HEX
-         byte[] hash = md.digest(fileBlob.getBytes());
-         String hex = bytesToHex(hash);
-         System.out.println(hex);
-
+         String[] result = getShaAndFileblob(fileName);
+         String hex = result[0];
+         String fileBlob = result[1];
          File parentDir = new File(".git/objects/" + hex.substring(0,2));
          if (!parentDir.exists()) {
            parentDir.mkdirs();
@@ -118,6 +162,10 @@ public class Main {
          for(String s : dirStructure) {
            System.out.println(s);
          }
+       } case "write-tree" -> {
+         File file = new File(".");
+         String treeHash = writeTree(file);
+         System.out.println(treeHash);
        }
        default -> System.out.println("Unknown command: " + command);
      }
