@@ -22,8 +22,8 @@ public class Main {
     return hex.toString();
   }
 
-  public static String[] getShaAndFileblob(File file) throws IOException, NoSuchAlgorithmException {
-    BufferedReader reader = new BufferedReader(new FileReader(file));
+  public static String[] getShaAndFileblob(String fileName) throws IOException, NoSuchAlgorithmException {
+    BufferedReader reader = new BufferedReader(new FileReader(fileName));
     StringBuilder content = new StringBuilder();
     String line;
     while((line = reader.readLine()) !=null) {
@@ -40,6 +40,29 @@ public class Main {
     return new String[]{hex, fileBlob};
   }
 
+
+  public static String[] getShaAndFileblobFromFile(File file) throws IOException, NoSuchAlgorithmException {
+//    BufferedReader reader = new BufferedReader(new FileReader(fileName));
+//    StringBuilder content = new StringBuilder();
+//    String line;
+//    while((line = reader.readLine()) !=null) {
+//      content.append(line);
+//    }
+    byte[] content = Files.readAllBytes(file.toPath());
+
+    String fileBlob = "blob "
+            +content.length
+            +"\0"
+            +content;
+    MessageDigest md = MessageDigest.getInstance("SHA-1"); //need to convert this to HEX
+    byte[] hash = md.digest(fileBlob.getBytes());
+    String hex = bytesToHex(hash);
+    System.out.println(hex);
+    return new String[]{hex, fileBlob};
+  }
+
+
+
   public static byte[] hexToBinary(String hex) {
     byte[] binary = new byte[20];
     for (int i = 0; i < 20; i++) {
@@ -55,7 +78,7 @@ public class Main {
       if (file.getName().equals(".git")) continue;  // Ignore .git directory
 
       if (file.isFile()) {
-        String hash = getShaAndFileblob(file)[0];
+        String hash = getShaAndFileblobFromFile(file)[0];
         entries.add("100644 " + file.getName() + "\0" + hexToBinary(hash));
       } else if (file.isDirectory()) {
         String treeHash = writeTree(file);
