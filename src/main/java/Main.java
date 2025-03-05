@@ -57,7 +57,7 @@ public class Main {
     MessageDigest md = MessageDigest.getInstance("SHA-1"); //need to convert this to HEX
     byte[] hash = md.digest(fileBlob.getBytes());
     String hex = bytesToHex(hash);
-    System.out.println(hex);
+//    System.out.println(hex);
     return new String[]{hex, fileBlob};
   }
 
