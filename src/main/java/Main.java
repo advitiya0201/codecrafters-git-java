@@ -85,7 +85,7 @@ public class Main {
         entries.add("40000 " + file.getName() + "\0" + hexToBinary(treeHash));
       }
     }
-      String treeBlob = "tree " + entries.size() + "\0" + String.join("", entries);
+      String treeBlob = "tree " + entries.size() + "\0" + String.join("", entries); //check once
       MessageDigest md = MessageDigest.getInstance("SHA-1");
       byte[] hash = md.digest(treeBlob.getBytes());
       String hex = bytesToHex(hash);
