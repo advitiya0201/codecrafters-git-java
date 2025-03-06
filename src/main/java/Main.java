@@ -38,29 +38,6 @@ public class Main {
     return new String[]{hex, fileBlob};
   }
 
-
-  public static String[] getShaAndFileblobFromFile(File file) throws IOException, NoSuchAlgorithmException {
-//    BufferedReader reader = new BufferedReader(new FileReader(fileName));
-//    StringBuilder content = new StringBuilder();
-//    String line;
-//    while((line = reader.readLine()) !=null) {
-//      content.append(line);
-//    }
-    byte[] content = Files.readAllBytes(file.toPath());
-
-    String fileBlob = "blob "
-            +content.length
-            +"\0"
-            +content;
-    MessageDigest md = MessageDigest.getInstance("SHA-1"); //need to convert this to HEX
-    byte[] hash = md.digest(fileBlob.getBytes());
-    String hex = bytesToHex(hash);
-//    System.out.println(hex);
-    return new String[]{hex, fileBlob};
-  }
-
-
-
   public static byte[] hexToBinary(String hex) {
     byte[] binary = new byte[20];
     for (int i = 0; i < 20; i++) {
@@ -69,67 +46,105 @@ public class Main {
     return binary;
   }
 
+  public static String[] getShaAndFileblobFromFile(File file) throws IOException, NoSuchAlgorithmException {
+    // Read file content as bytes
+    byte[] fileContent = Files.readAllBytes(file.toPath());
+
+    // Create header with correct format
+    String header = "blob " + fileContent.length + "\0";
+    byte[] headerBytes = header.getBytes();
+
+    // Combine header and content for hashing
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    bos.write(headerBytes);
+    bos.write(fileContent);
+    byte[] fullContent = bos.toByteArray();
+
+    // Hash the full content
+    MessageDigest md = MessageDigest.getInstance("SHA-1");
+    byte[] hash = md.digest(fullContent);
+    String hex = bytesToHex(hash);
+
+    // Store the blob if it doesn't exist
+    File parentDir = new File(".git/objects/" + hex.substring(0, 2));
+    if (!parentDir.exists()) {
+      parentDir.mkdirs();
+    }
+
+    File objectFile = new File(parentDir, hex.substring(2));
+    if (!objectFile.exists()) {
+      try (OutputStream out = new DeflaterOutputStream(new FileOutputStream(objectFile))) {
+        out.write(fullContent);
+      }
+    }
+
+    return new String[]{hex, new String(fileContent)};
+  }
+
   public static String writeTree(File directory) throws IOException, NoSuchAlgorithmException {
     if (!directory.isDirectory()) return null;
 
+    // Create a sorted list of files
+    File[] files = directory.listFiles();
+    if (files == null) files = new File[0];
+    Arrays.sort(files, Comparator.comparing(File::getName));
+
+    // Create the tree content
     ByteArrayOutputStream treeContent = new ByteArrayOutputStream();
 
-    // Sort files to match Git's behavior
-    File[] files = directory.listFiles();
-    if (files != null) {
-      Arrays.sort(files, Comparator.comparing(File::getName));
+    for (File file : files) {
+      if (file.getName().equals(".git")) continue;  // Ignore .git directory
 
-      for (File file : files) {
-        if (file.getName().equals(".git")) continue;  // Ignore .git directory
+      String mode;
+      String hash;
 
-        String mode;
-        String hash;
-
-        if (file.isFile()) {
-          mode = "100644";
-          hash = getShaAndFileblobFromFile(file)[0];
-        } else if (file.isDirectory()) {
-          mode = "40000";
-          hash = writeTree(file);
-        } else {
-          continue;
-        }
-
-        // Write mode and filename followed by null byte
-        treeContent.write((mode + " " + file.getName() + "\0").getBytes());
-
-        // Write binary hash value
-        treeContent.write(hexToBinary(hash));
+      if (file.isFile()) {
+        mode = "100644"; // Regular file
+        hash = getShaAndFileblobFromFile(file)[0];
+      } else if (file.isDirectory()) {
+        mode = "40000"; // Directory
+        hash = writeTree(file);
+      } else {
+        continue; // Skip special files
       }
+
+      // Format: "<mode> <name>\0<20-byte-sha>"
+      byte[] modeAndName = (mode + " " + file.getName() + "\0").getBytes();
+      treeContent.write(modeAndName);
+      treeContent.write(hexToBinary(hash));
     }
 
     byte[] treeContentBytes = treeContent.toByteArray();
-    String headerString = "tree " + treeContentBytes.length + "\0";
-    byte[] headerBytes = headerString.getBytes();
 
-    // Create complete tree object content (header + content)
-    ByteArrayOutputStream fullTreeContent = new ByteArrayOutputStream();
-    fullTreeContent.write(headerBytes);
-    fullTreeContent.write(treeContentBytes);
-    byte[] fullBytes = fullTreeContent.toByteArray();
+    // Create the tree header
+    String header = "tree " + treeContentBytes.length + "\0";
+    byte[] headerBytes = header.getBytes();
 
-    // Calculate hash of the complete tree object
+    // Combine header and content for the full tree object
+    ByteArrayOutputStream fullObject = new ByteArrayOutputStream();
+    fullObject.write(headerBytes);
+    fullObject.write(treeContentBytes);
+    byte[] completeTree = fullObject.toByteArray();
+
+    // Hash the complete tree
     MessageDigest md = MessageDigest.getInstance("SHA-1");
-    byte[] treeHashBytes = md.digest(fullBytes);
-    String hex = bytesToHex(treeHashBytes);
+    byte[] hash = md.digest(completeTree);
+    String treeHash = bytesToHex(hash);
 
-    // Write to file
-    File parentDir = new File(".git/objects/" + hex.substring(0, 2));
-    if (!parentDir.exists()) parentDir.mkdirs();
+    // Store the tree object
+    File parentDir = new File(".git/objects/" + treeHash.substring(0, 2));
+    if (!parentDir.exists()) {
+      parentDir.mkdirs();
+    }
 
-    File treeFile = new File(parentDir, hex.substring(2));
+    File treeFile = new File(parentDir, treeHash.substring(2));
     if (!treeFile.exists()) {
       try (OutputStream out = new DeflaterOutputStream(new FileOutputStream(treeFile))) {
-        out.write(fullBytes);
+        out.write(completeTree);
       }
     }
 
-    return hex;
+    return treeHash;
   }
 
   public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
