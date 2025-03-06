@@ -77,7 +77,7 @@ public class Main {
     // Sort files to match Git's behavior
     File[] files = directory.listFiles();
     if (files != null) {
-      Arrays.sort(files);
+      Arrays.sort(files, Comparator.comparing(File::getName));
 
       for (File file : files) {
         if (file.getName().equals(".git")) continue;  // Ignore .git directory
