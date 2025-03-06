@@ -2,9 +2,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -73,48 +71,67 @@ public class Main {
 
   public static String writeTree(File directory) throws IOException, NoSuchAlgorithmException {
     if (!directory.isDirectory()) return null;
-    List<String> entries = new ArrayList<>();
+
     ByteArrayOutputStream treeContent = new ByteArrayOutputStream();
-    for (File file : Objects.requireNonNull(directory.listFiles())) {
-      if (file.getName().equals(".git")) continue;  // Ignore .git directory
 
-      String mode;
-      String hash;
-      if (file.isFile()) {
-        mode = "100644";
-        hash = getShaAndFileblobFromFile(file)[0];
-//        entries.add("100644 " + file.getName() + "\0" + hexToBinary(hash));
-      } else if (file.isDirectory()) {
-        mode = "40000";
-        hash = writeTree(file);
-//        entries.add("40000 " + file.getName() + "\0" + hexToBinary(treeHash));
-      } else {
-        continue;
+    // Sort files to match Git's behavior
+    File[] files = directory.listFiles();
+    if (files != null) {
+      Arrays.sort(files, Comparator.comparing(File::getName));
+
+      for (File file : files) {
+        if (file.getName().equals(".git")) continue;  // Ignore .git directory
+
+        String mode;
+        String hash;
+
+        if (file.isFile()) {
+          mode = "100644";
+          hash = getShaAndFileblobFromFile(file)[0];
+        } else if (file.isDirectory()) {
+          mode = "40000";
+          hash = writeTree(file);
+        } else {
+          continue;
+        }
+
+        // Write mode and filename followed by null byte
+        treeContent.write((mode + " " + file.getName() + "\0").getBytes());
+
+        // Write binary hash value
+        treeContent.write(hexToBinary(hash));
       }
-      treeContent.write((mode + " " + file.getName() + "\0").getBytes());
-      treeContent.write(hexToBinary(hash)); // Write raw binary hash
     }
-    byte[] treeBytes = treeContent.toByteArray();
-    String treeBlob = "tree " + treeBytes.length + "\0";
 
+    byte[] treeContentBytes = treeContent.toByteArray();
+    String headerString = "tree " + treeContentBytes.length + "\0";
+    byte[] headerBytes = headerString.getBytes();
+
+    // Create complete tree object content (header + content)
+    ByteArrayOutputStream fullTreeContent = new ByteArrayOutputStream();
+    fullTreeContent.write(headerBytes);
+    fullTreeContent.write(treeContentBytes);
+    byte[] fullBytes = fullTreeContent.toByteArray();
+
+    // Calculate hash of the complete tree object
     MessageDigest md = MessageDigest.getInstance("SHA-1");
-    md.update(treeBlob.getBytes()); // Prefix
-    md.update(treeBytes); // Actual tree content
-    byte[] treeHashBytes = md.digest();
+    byte[] treeHashBytes = md.digest(fullBytes);
     String hex = bytesToHex(treeHashBytes);
 
+    // Write to file
     File parentDir = new File(".git/objects/" + hex.substring(0, 2));
     if (!parentDir.exists()) parentDir.mkdirs();
 
     File treeFile = new File(parentDir, hex.substring(2));
     if (!treeFile.exists()) {
       try (OutputStream out = new DeflaterOutputStream(new FileOutputStream(treeFile))) {
-        out.write(treeBlob.getBytes());  // Write header
-        out.write(treeBytes);            // Write binary tree content
+        out.write(fullBytes);
       }
     }
+
     return hex;
   }
+
   public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
 
     System.err.println("Logs from your program will appear here!");
