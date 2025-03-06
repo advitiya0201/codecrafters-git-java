@@ -74,32 +74,46 @@ public class Main {
   public static String writeTree(File directory) throws IOException, NoSuchAlgorithmException {
     if (!directory.isDirectory()) return null;
     List<String> entries = new ArrayList<>();
+    ByteArrayOutputStream treeContent = new ByteArrayOutputStream();
     for (File file : Objects.requireNonNull(directory.listFiles())) {
       if (file.getName().equals(".git")) continue;  // Ignore .git directory
 
+      String mode;
+      String hash;
       if (file.isFile()) {
-        String hash = getShaAndFileblobFromFile(file)[0];
-        entries.add("100644 " + file.getName() + "\0" + hexToBinary(hash));
+        mode = "100644";
+        hash = getShaAndFileblobFromFile(file)[0];
+//        entries.add("100644 " + file.getName() + "\0" + hexToBinary(hash));
       } else if (file.isDirectory()) {
-        String treeHash = writeTree(file);
-        entries.add("40000 " + file.getName() + "\0" + hexToBinary(treeHash));
+        mode = "40000";
+        hash = writeTree(file);
+//        entries.add("40000 " + file.getName() + "\0" + hexToBinary(treeHash));
+      } else {
+        continue;
+      }
+      treeContent.write((mode + " " + file.getName() + "\0").getBytes());
+      treeContent.write(hexToBinary(hash)); // Write raw binary hash
+    }
+    byte[] treeBytes = treeContent.toByteArray();
+    String treeBlob = "tree " + treeBytes.length + "\0";
+
+    MessageDigest md = MessageDigest.getInstance("SHA-1");
+    md.update(treeBlob.getBytes()); // Prefix
+    md.update(treeBytes); // Actual tree content
+    byte[] treeHashBytes = md.digest();
+    String hex = bytesToHex(treeHashBytes);
+
+    File parentDir = new File(".git/objects/" + hex.substring(0, 2));
+    if (!parentDir.exists()) parentDir.mkdirs();
+
+    File treeFile = new File(parentDir, hex.substring(2));
+    if (!treeFile.exists()) {
+      try (OutputStream out = new DeflaterOutputStream(new FileOutputStream(treeFile))) {
+        out.write(treeBlob.getBytes());  // Write header
+        out.write(treeBytes);            // Write binary tree content
       }
     }
-      String treeBlob = "tree " + entries.size() + "\0" + String.join("", entries); //check once
-      MessageDigest md = MessageDigest.getInstance("SHA-1");
-      byte[] hash = md.digest(treeBlob.getBytes());
-      String hex = bytesToHex(hash);
-
-      File parentDir = new File(".git/objects/" + hex.substring(0, 2));
-      if (!parentDir.exists()) parentDir.mkdirs();
-
-      File treeFile = new File(parentDir, hex.substring(2));
-      if (!treeFile.exists()) {
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new DeflaterOutputStream(new FileOutputStream(treeFile))))) {
-          writer.write(treeBlob);
-        }
-      }
-      return hex;
+    return hex;
   }
   public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
 
