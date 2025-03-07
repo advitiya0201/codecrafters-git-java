@@ -155,9 +155,9 @@ public class Main {
   public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
 
     System.err.println("Logs from your program will appear here!");
-    for(String it: args) {
-      System.out.println("args is: "+it);
-    }
+//    for(String it: args) {
+//      System.out.println("args is: "+it);
+//    }
      final String command = args[0];
 
      switch (command) {
@@ -240,6 +240,26 @@ public class Main {
          File file = new File(".");
          String treeHash = writeTree(file);
          System.out.println(treeHash);
+       } case "commit-tree" -> {
+         String treeSha = args[1];
+         String commitSha = args[3];
+         String message = args[5];
+
+         String content = "tree " + treeSha
+                 +"parent " + commitSha
+                 +"author " + "advitiya"
+                 +"abc@gmail.com"
+                 +message;
+
+         String commitObject = "commit "+ content.length() + "\0" +content;
+         MessageDigest md = MessageDigest.getInstance("SHA-1");
+         byte[] hash = md.digest(commitObject.getBytes());
+         String hex = bytesToHex(hash);
+         System.out.println(hex);
+
+         File file = new File(".git/objects/" + hex.substring(0,2) + "/" + hex.substring(2));
+         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new DeflaterOutputStream(new FileOutputStream(file))));
+         writer.write(commitObject);
        }
        default -> System.out.println("Unknown command: " + command);
      }
