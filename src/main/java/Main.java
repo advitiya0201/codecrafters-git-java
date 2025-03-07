@@ -249,7 +249,7 @@ public class Main {
                  +"parent " + commitSha + "\n"
                  +"author " + "advitiya"
                  +"abc@gmail.com" + "\n" + "\n"
-                 +message;
+                 +message + "\n";
 
          String commitObject = "commit "+ content.length() + "\0" +content;
          MessageDigest md = MessageDigest.getInstance("SHA-1");
