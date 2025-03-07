@@ -6,6 +6,11 @@ import java.util.*;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
+/* NOTE:
+ *Although the object file is stored with zlib compression,
+ * the SHA hash needs to be computed over the "uncompressed" contents of the file,
+ * not the compressed version.
+ */
 public class Main {
 
   public static String bytesToHex(byte[] hash) {
@@ -150,9 +155,9 @@ public class Main {
   public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
 
     System.err.println("Logs from your program will appear here!");
-//    for(String it: args) {
-//      System.out.println("args is: "+it);
-//    }
+    for(String it: args) {
+      System.out.println("args is: "+it);
+    }
      final String command = args[0];
 
      switch (command) {
