@@ -255,7 +255,7 @@ public class Main {
          MessageDigest md = MessageDigest.getInstance("SHA-1");
          byte[] hash = md.digest(commitObject.getBytes());
          String hex = bytesToHex(hash);
-         System.out.println(hex);
+         System.out.print(hex);
 
          File parentDir = new File(".git/objects/" + hex.substring(0,2));
          if (!parentDir.exists()) {
