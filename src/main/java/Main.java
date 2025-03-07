@@ -246,10 +246,10 @@ public class Main {
          String message = args[5];
 
          String content = "tree " + treeSha + "\n"
-                 +"parent " + commitSha
-                 +message + "\n"
-                 +"author " + "advitiya" + "\n"
-                 +"abc@gmail.com" + "\n";
+                 +"parent " + commitSha + "\n"
+                 +"author " + "advitiya"
+                 +"abc@gmail.com" + "\n" + "\n"
+                 +message;
 
          String commitObject = "commit "+ content.length() + "\0" +content;
          MessageDigest md = MessageDigest.getInstance("SHA-1");
