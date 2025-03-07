@@ -246,7 +246,7 @@ public class Main {
          String message = args[5];
 
          String content = "tree " + treeSha + "\n"
-                 +"parent " + commitSha + "\n"
+                 +"parent " + commitSha
                  +message + "\n"
                  +"author " + "advitiya" + "\n"
                  +"abc@gmail.com" + "\n";
