@@ -257,7 +257,12 @@ public class Main {
          String hex = bytesToHex(hash);
          System.out.println(hex);
 
-         File file = new File(".git/objects/" + hex.substring(0,2) + "/" + hex.substring(2));
+         File parentDir = new File(".git/objects/" + hex.substring(0,2));
+         if (!parentDir.exists()) {
+           parentDir.mkdirs();
+         }
+         File file = new File(parentDir + "/"+ hex.substring(2));
+
          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new DeflaterOutputStream(new FileOutputStream(file))));
          writer.write(commitObject);
        }
