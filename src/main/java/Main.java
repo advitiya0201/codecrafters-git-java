@@ -247,9 +247,9 @@ public class Main {
 
          String content = "tree " + treeSha + "\n"
                  +"parent " + commitSha + "\n"
+                 +message + "\n"
                  +"author " + "advitiya" + "\n"
-                 +"abc@gmail.com" + "\n"
-                 +message + "\n";
+                 +"abc@gmail.com" + "\n";
 
          String commitObject = "commit "+ content.length() + "\0" +content;
          MessageDigest md = MessageDigest.getInstance("SHA-1");
