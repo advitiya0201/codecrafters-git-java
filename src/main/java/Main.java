@@ -256,6 +256,17 @@ public class Main {
          byte[] hash = md.digest(commitObject.getBytes());
          String hex = bytesToHex(hash);
          System.out.print(hex);
+         File f1p = new File(".git/objects/" + treeSha.substring(0,2));
+         if (!f1p.exists()) {
+           f1p.mkdirs();
+         }
+         File f1 = new File(f1p + "/"+ treeSha.substring(2));
+
+         File f2p = new File(".git/objects/" + commitSha.substring(0,2));
+         if (!f2p.exists()) {
+           f2p.mkdirs();
+         }
+         File f2 = new File(f2p + "/"+ commitSha.substring(2));
 
          File parentDir = new File(".git/objects/" + hex.substring(0,2));
          if (!parentDir.exists()) {
@@ -265,7 +276,7 @@ public class Main {
 
          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new DeflaterOutputStream(new FileOutputStream(file))));
          writer.write(commitObject);
-//         writer.close();
+         writer.close();
        }
        default -> System.out.println("Unknown command: " + command);
      }
