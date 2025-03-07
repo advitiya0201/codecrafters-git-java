@@ -265,7 +265,7 @@ public class Main {
 
          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new DeflaterOutputStream(new FileOutputStream(file))));
          writer.write(commitObject);
-         writer.close();
+//         writer.close();
        }
        default -> System.out.println("Unknown command: " + command);
      }
